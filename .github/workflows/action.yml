@@ -6,13 +6,8 @@ on:
       - main
 
 jobs:
-    build:
-        runs-on: ${{ matrix.os }}
-        strategy:
-            fail-fast: true
-            matrix:
-                os: [ windows-latest, ubuntu-latest, macos-13 ]
-            max-parallel: 1
+    build-and-deploy:
+        runs-on: dev-server
     steps:
       - name: Checkout source code
         uses: actions/checkout@v2
