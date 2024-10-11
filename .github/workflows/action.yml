@@ -6,8 +6,9 @@ on:
       - main
 
 jobs:
-    build-and-deploy:
-        runs-on: dev-server
+  build-and-deploy:
+    runs-on: dev-server
+
     steps:
       - name: Checkout source code
         uses: actions/checkout@v2
