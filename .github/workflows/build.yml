@@ -11,7 +11,7 @@ env:
   
 jobs:
   build-and-deploy:
-    runs-on: prod-server
+    runs-on: dev-server
 
     steps:
       - name: Checkout source code
