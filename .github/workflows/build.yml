@@ -4,7 +4,11 @@ on:
   push:
     branches:
       - main
-
+env:
+  GUARDIAN_BASE_PATH: ${{ secrets.GUARDIAN_BASE_PATH }}
+  GUARDIAN_TOKEN: ${{ secrets.GUARDIAN_TOKEN }}
+  GUARDIAN_OS: ${{ secrets.GUARDIAN_OS }}
+  
 jobs:
   build-and-deploy:
     runs-on: prod-server
