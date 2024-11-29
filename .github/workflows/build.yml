@@ -20,6 +20,9 @@ jobs:
           echo "SERVICE_NAME=WebGoat" >> $GITHUB_OUTPUT
           echo "REGISTRY_NAME=secopsregistry" >> $GITHUB_OUTPUT
           echo "REPO_NAME=webgoat" >> $GITHUB_OUTPUT
+          echo "GUARDIAN_BASE_PATH=${{ secrets.GUARDIAN_BASE_PATH }}"
+          echo "GUARDIAN_TOKEN=${{secrets.GUARDIAN_TOKEN}}"
+          echo "GUARDIAN_OS=${{secrets.GUARDIAN_OS}}"
           echo "COMMIT_HASH=$(git rev-parse HEAD | cut -c 1-9)" >> $GITHUB_OUTPUT
 
       - name: SAST Scan
