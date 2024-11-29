@@ -1,4 +1,4 @@
-name: "Web Goat Pipeline"
+name: "Web Goat Pipeline "
 
 on:
   push:
