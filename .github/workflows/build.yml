@@ -49,16 +49,14 @@ jobs:
         shell: bash
         run: |-
           docker login --username ${{ secrets.DOCKERHUB_USERNAME }} --password ${{ secrets.DOCKERHUB_PASSWORD }}
-          echo ${{ steps.set-env.outputs.COMMIT_HASH }}
           docker build -t ${{ steps.set-env.outputs.REGISTRY_NAME }}/${{ steps.set-env.outputs.REPO_NAME }}:${{ steps.set-env.outputs.COMMIT_HASH }} .
-          docker push ${{ steps.set-env.outputs.REGISTRY_NAME }}/${{ steps.set-env.outputs.REPO_NAME }}:${{ steps.set-env.outputs.COMMIT_HASH }}
-
-      - name: Container Scan
-        shell: bash
-        run: |-
-          guardian scan --scanType container --serviceName ${{ steps.set-env.outputs.SERVICE_NAME }} --image ${{ steps.set-env.outputs.REGISTRY_NAME }}/${{ steps.set-env.outputs.REPO_NAME }}:${{ steps.set-env.outputs.COMMIT_HASH }}
-
+          
       - name: IAC Scan
         shell: bash
         run: |-
-          guardian scan --scanType iac --serviceName ${{ steps.set-env.outputs.SERVICE_NAME }}      
+          guardian scan --scanType iac --serviceName ${{ steps.set-env.outputs.SERVICE_NAME }}    
+          
+      - name: Container Scan
+        shell: bash
+        run: |-
+          guardian scan --scanType container --serviceName ${{ steps.set-env.outputs.SERVICE_NAME }} --image ${{ steps.set-env.outputs.REGISTRY_NAME }}/${{ steps.set-env.outputs.REPO_NAME }}:${{ steps.set-env.outputs.COMMIT_HASH }}  
