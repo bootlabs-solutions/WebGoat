@@ -17,17 +17,11 @@ jobs:
         id: set-env
         run: |-
           BRANCH=$(git rev-parse --abbrev-ref HEAD)
-          COMMIT_ID=$(git rev-parse HEAD)
-          echo "BRANCH=$(git rev-parse --abbrev-ref HEAD)" >> $GITHUB_OUTPUT
-          echo "COMMIT_ID=$(git rev-parse HEAD)" >> $GITHUB_OUTPUT
           echo "SERVICE_NAME=WebGoat" >> $GITHUB_OUTPUT
-          echo "PROJECT_ID=SAIL" >> $GITHUB_OUTPUT
-          echo "TICKET_ID=jp-app" >> $GITHUB_OUTPUT
           echo "GUARDIAN_DEV_URL=https://guardian-dev.bootlabstech.com" >> $GITHUB_OUTPUT
           echo "REGISTRY_NAME=secopsregistry" >> $GITHUB_OUTPUT
-          echo "REPO_NAME=secopsrepo" >> $GITHUB_OUTPUT
+          echo "REPO_NAME=webgoat" >> $GITHUB_OUTPUT
           echo "COMMIT_HASH=$(git rev-parse HEAD | cut -c 1-9)" >> $GITHUB_OUTPUT
-
 
       - name: SAST Scan
         shell: bash
@@ -38,53 +32,13 @@ jobs:
           sudo yum update -y
           sudo yum install python3 -y
           python3 -m pip install semgrep
-          semgrep --version
-          semgrep scan --json >Web-Goat-sast.json
-          curl -X POST \
-          -H 'Content-Type: multipart/form-data' \
-          --form 'branch=${{ steps.set-env.outputs.BRANCH }}' \
-          --form 'commit=${{ steps.set-env.outputs.COMMIT_ID }}' \
-          --form 'integration_id="semgrep_sast"' \
-          --form 'service_name="WebGoat"' \
-          --form 'project_id=SAIL' \
-          --form 'report=@"Web-Goat-sast.json"' \
-          ${{ steps.set-env.outputs.GUARDIAN_DEV_URL }}/api/v1/vulnerability
-
-      - name: Upload Reports
-        uses: actions/upload-artifact@v2
-        with:
-          name: sast-report
-          path: Web-Goat-sast.json
-
-      - name: Remove local report
-        shell: bash
-        run: rm Web-Goat-sast.json
+          guardian scan --scanType sast --serviceName ${{ steps.set-env.outputs.SERVICE_NAME }}
 
       - name: SCA Scan
         shell: bash
         run: |-
-          sudo yum update -y
-          sudo yum install nodejs npm -y
-          sudo npm install -g snyk -y
-          snyk auth a797ce20-5f09-4fc7-850b-e900b0541ae2
-          snyk test --json-file-output=Web-Goat-sca.json || true
-          curl -X POST \
-          -H 'Content-Type: multipart/form-data' \
-          --form 'report=@"Web-Goat-sca.json"' \
-          --form 'integration_id="snyk_sca"' \
-          --form 'service_name="WebGoat"' \
-          ${{ steps.set-env.outputs.GUARDIAN_DEV_URL }}/api/v1/vulnerability
-
-      - name: Upload SCA Reports
-        uses: actions/upload-artifact@v2
-        with:
-          name: sca-report
-          path: Web-Goat-sca.json
-
-      - name: Remove local report
-        shell: bash
-        run: rm Web-Goat-sca.json
-
+          guardian scan --scanType sca --serviceName ${{ steps.set-env.outputs.SERVICE_NAME }}
+          
       - name: Docker Build Stage
         shell: bash
         run: |-
@@ -94,56 +48,11 @@ jobs:
           docker push ${{ steps.set-env.outputs.REGISTRY_NAME }}/${{ steps.set-env.outputs.REPO_NAME }}:${{ steps.set-env.outputs.COMMIT_HASH }}
 
       - name: Container Scan
-        uses: aquasecurity/trivy-action@master
-        with:
-          image-ref: "${{ steps.set-env.outputs.REGISTRY_NAME }}/${{ steps.set-env.outputs.REPO_NAME }}:${{ steps.set-env.outputs.COMMIT_HASH }}"
-          format: "json"
-          output: "Web-Goat-container.json"
-
-      - name: Container Scan API
         shell: bash
         run: |-
-          echo "Service Name: ${{ steps.set-env.outputs.SERVICE_NAME }}"
-          echo "TICKET ID: ${{ steps.set-env.outputs.TICKET_ID }}"
-          echo "PROJECT ID: ${{ steps.set-env.outputs.PROJECT_ID }}"
-          curl -X POST \
-          -H 'Content-Type: multipart/form-data' \
-          --form 'report=@"Web-Goat-container.json"' \
-          --form 'integration_id="trivy_container"' \
-          --form 'service_name="WebGoat"' \
-          ${{ steps.set-env.outputs.GUARDIAN_DEV_URL }}/api/v1/vulnerability
-
-      - name: Upload Container Reports
-        uses: actions/upload-artifact@v2
-        with:
-          name: Container-report
-          path: Web-Goat-container.json
-      - name: Remove local report
-        shell: bash
-        run: rm Web-Goat-container.json
+          guardian scan --scanType container --serviceName ${{ steps.set-env.outputs.SERVICE_NAME }} --image ${{ steps.set-env.outputs.REGISTRY_NAME }}/${{ steps.set-env.outputs.REPO_NAME }}:${{ steps.set-env.outputs.COMMIT_HASH }}
 
       - name: IAC Scan
-        uses: aquasecurity/trivy-action@master
-        with:
-          scan-type: "config"
-          format: "json"
-          output: "Web-Goat-iac.json"
-
-      - name: IAC Scan API
         shell: bash
         run: |-
-          curl -X POST \
-          -H 'Content-Type: multipart/form-data' \
-          --form 'integration_id="trivy_iac"' \
-          --form 'report=@"Web-Goat-iac.json"' \
-          --form 'service_name="WebGoat"' \
-          ${{ steps.set-env.outputs.GUARDIAN_DEV_URL }}/api/v1/vulnerability
-
-      - name: Upload IAC Reports
-        uses: actions/upload-artifact@v2
-        with:
-          name: IAC-report
-          path: Web-Goat-iac.json
-      - name: Remove local report
-        shell: bash
-        run: rm Web-Goat-iac.json
+          guardian scan --scanType iac --serviceName ${{ steps.set-env.outputs.SERVICE_NAME }}      
