@@ -44,6 +44,11 @@ jobs:
         shell: bash
         run: |-
           guardian scan --scanType sca --serviceName ${{ steps.set-env.outputs.SERVICE_NAME }}
+
+      - name: IAC Scan
+        shell: bash
+        run: |-
+          guardian scan --scanType iac --serviceName ${{ steps.set-env.outputs.SERVICE_NAME }}              
           
       - name: Docker Build Stage
         shell: bash
@@ -51,10 +56,6 @@ jobs:
           docker login --username ${{ secrets.DOCKERHUB_USERNAME }} --password ${{ secrets.DOCKERHUB_PASSWORD }}
           docker build -t ${{ steps.set-env.outputs.REGISTRY_NAME }}/${{ steps.set-env.outputs.REPO_NAME }}:${{ steps.set-env.outputs.COMMIT_HASH }} .
           
-      - name: IAC Scan
-        shell: bash
-        run: |-
-          guardian scan --scanType iac --serviceName ${{ steps.set-env.outputs.SERVICE_NAME }}    
           
       - name: Container Scan
         shell: bash
