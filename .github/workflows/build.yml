@@ -16,6 +16,7 @@ jobs:
     steps:
       - name: Checkout source code
         uses: actions/checkout@v2
+        
       - name: Display Changeset
         shell: bash
         id: set-env
@@ -39,6 +40,18 @@ jobs:
           sudo yum install python3 -y
           python3 -m pip install semgrep
           # guardian scan --scanType sast --serviceName ${{ steps.set-env.outputs.SERVICE_NAME }}
+
+      - name: Docker Build Stage
+        shell: bash
+        run: |-
+          docker login --username ${{ secrets.DOCKERHUB_USERNAME }} --password ${{ secrets.DOCKERHUB_PASSWORD }}
+          docker build -t ${{ steps.set-env.outputs.REGISTRY_NAME }}/${{ steps.set-env.outputs.REPO_NAME }}:${{ steps.set-env.outputs.COMMIT_HASH }} .
+          
+          
+      - name: Container Scan
+        shell: bash
+        run: |-
+          guardian scan --scanType container --serviceName ${{ steps.set-env.outputs.SERVICE_NAME }} --image ${{ steps.set-env.outputs.REGISTRY_NAME }}/${{ steps.set-env.outputs.REPO_NAME }}:${{ steps.set-env.outputs.COMMIT_HASH }}          
           
       - name: IAC Scan
         shell: bash
@@ -51,14 +64,4 @@ jobs:
         run: |-
           guardian scan --scanType sca --serviceName ${{ steps.set-env.outputs.SERVICE_NAME }}
 
-      - name: Docker Build Stage
-        shell: bash
-        run: |-
-          docker login --username ${{ secrets.DOCKERHUB_USERNAME }} --password ${{ secrets.DOCKERHUB_PASSWORD }}
-          docker build -t ${{ steps.set-env.outputs.REGISTRY_NAME }}/${{ steps.set-env.outputs.REPO_NAME }}:${{ steps.set-env.outputs.COMMIT_HASH }} .
-          
-          
-      - name: Container Scan
-        shell: bash
-        run: |-
-          guardian scan --scanType container --serviceName ${{ steps.set-env.outputs.SERVICE_NAME }} --image ${{ steps.set-env.outputs.REGISTRY_NAME }}/${{ steps.set-env.outputs.REPO_NAME }}:${{ steps.set-env.outputs.COMMIT_HASH }}  
+  
