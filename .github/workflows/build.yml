@@ -39,17 +39,18 @@ jobs:
           sudo yum install python3 -y
           python3 -m pip install semgrep
           # guardian scan --scanType sast --serviceName ${{ steps.set-env.outputs.SERVICE_NAME }}
+          
+      - name: IAC Scan
+        shell: bash
+        run: |-
+          guardian scan --scanType iac --serviceName ${{ steps.set-env.outputs.SERVICE_NAME }}              
+                    
 
       - name: SCA Scan
         shell: bash
         run: |-
           guardian scan --scanType sca --serviceName ${{ steps.set-env.outputs.SERVICE_NAME }}
 
-      - name: IAC Scan
-        shell: bash
-        run: |-
-          guardian scan --scanType iac --serviceName ${{ steps.set-env.outputs.SERVICE_NAME }}              
-          
       - name: Docker Build Stage
         shell: bash
         run: |-
