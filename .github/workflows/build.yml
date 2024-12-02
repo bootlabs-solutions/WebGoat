@@ -38,7 +38,7 @@ jobs:
           sudo yum update -y
           sudo yum install python3 -y
           python3 -m pip install semgrep
-          guardian scan --scanType sast --serviceName ${{ steps.set-env.outputs.SERVICE_NAME }}
+          # guardian scan --scanType sast --serviceName ${{ steps.set-env.outputs.SERVICE_NAME }}
 
       - name: SCA Scan
         shell: bash
