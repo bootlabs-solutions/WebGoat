@@ -3,7 +3,7 @@ name: "Web Goat Pipeline "
 on:
   push:
     branches:
-      - main
+      - guard
 env:
   GUARDIAN_BASE_PATH: ${{ secrets.GUARDIAN_BASE_PATH }}
   GUARDIAN_TOKEN: ${{ secrets.GUARDIAN_TOKEN }}
@@ -22,7 +22,7 @@ jobs:
         id: set-env
         run: |-
           BRANCH=$(git rev-parse --abbrev-ref HEAD)
-          echo "SERVICE_NAME=WebGoat1" >> $GITHUB_OUTPUT
+          echo "SERVICE_NAME=guard" >> $GITHUB_OUTPUT
           echo "REGISTRY_NAME=secopsregistry" >> $GITHUB_OUTPUT
           echo "REPO_NAME=webgoat" >> $GITHUB_OUTPUT
           echo "GUARDIAN_BASE_PATH=${{ secrets.GUARDIAN_BASE_PATH }}"
@@ -33,13 +33,13 @@ jobs:
       - name: SAST Scan
         shell: bash
         run: |-
-          echo "Branch Name: ${{ steps.set-env.outputs.BRANCH }}"
-          echo "Commit Id: ${{ steps.set-env.outputs.COMMIT_ID }}"
-          echo "Service Name: ${{ steps.set-env.outputs.SERVICE_NAME }}"
-          sudo yum update -y
-          sudo yum install python3 -y
-          python3 -m pip install semgrep
-          # guardian scan --scanType sast --serviceName ${{ steps.set-env.outputs.SERVICE_NAME }}
+          # echo "Branch Name: ${{ steps.set-env.outputs.BRANCH }}"
+          # echo "Commit Id: ${{ steps.set-env.outputs.COMMIT_ID }}"
+          # echo "Service Name: ${{ steps.set-env.outputs.SERVICE_NAME }}"
+          # sudo yum update -y
+          # sudo yum install python3 -y
+          # python3 -m pip install semgrep
+          guardian scan --scanType sast --serviceName ${{ steps.set-env.outputs.SERVICE_NAME }}
 
       - name: Docker Build Stage
         shell: bash
