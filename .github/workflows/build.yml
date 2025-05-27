@@ -37,14 +37,14 @@ jobs:
           echo "Branch Name: ${{ steps.set-env.outputs.BRANCH }}"
           echo "Commit Id: ${{ steps.set-env.outputs.COMMIT_ID }}"
           echo "Service Name: ${{ steps.set-env.outputs.SERVICE_NAME }}"
-          sudo yum update -y
-          sudo yum install python3 -y
-          python3 -m pip install semgrep
+          # sudo yum update -y
+          # sudo yum install python3 -y
+          # python3 -m pip install semgrep
           # export SEMGREP_APP_TOKEN= ${{ secrets.SEMGREP_APP_TOKEN }}
           # semgrep login 
-          semgrep scan --json > ${{ steps.set-env.outputs.SERVICE_NAME }}-sast.json
-          curl --location https://guardian.bootlabstech.com/api/v1/vulnerability -k -X POST -H "Content-Type: multipart/form-data" -H "Authorization: ${{ secrets.GUARDIAN_TOKEN }}" --form "integration_id=semgrep_sast" --form "service_name=${{ steps.set-env.outputs.SERVICE_NAME }}" --form "project_id=${{ steps.set-env.outputs.SERVICE_NAME }}" --form "report=@${{ steps.set-env.outputs.SERVICE_NAME }}-sast.json" --form "branch=${{ steps.set-env.outputs.BRANCH }}" --form "commit=${{ steps.set-env.outputs.COMMIT_HASH }}"
-          # guardian scan --scanType sast --serviceName ${{ steps.set-env.outputs.SERVICE_NAME }}
+          # semgrep scan --json > ${{ steps.set-env.outputs.SERVICE_NAME }}-sast.json
+          # curl --location https://guardian.bootlabstech.com/api/v1/vulnerability -k -X POST -H "Content-Type: multipart/form-data" -H "Authorization: ${{ secrets.GUARDIAN_TOKEN }}" --form "integration_id=semgrep_sast" --form "service_name=${{ steps.set-env.outputs.SERVICE_NAME }}" --form "project_id=${{ steps.set-env.outputs.SERVICE_NAME }}" --form "report=@${{ steps.set-env.outputs.SERVICE_NAME }}-sast.json" --form "branch=${{ steps.set-env.outputs.BRANCH }}" --form "commit=${{ steps.set-env.outputs.COMMIT_HASH }}"
+          guardian scan --scanType sas:t --serviceName ${{ steps.set-env.outputs.SERVICE_NAME }}
 
       - name: SCA Scan
         shell: bash
