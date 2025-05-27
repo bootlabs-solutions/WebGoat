@@ -64,4 +64,6 @@ jobs:
         run: |-
           guardian scan --scanType sca --serviceName ${{ steps.set-env.outputs.SERVICE_NAME }}
 
+          
+
   
