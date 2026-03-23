@@ -57,6 +57,29 @@ jobs:
           docker login --username ${{ secrets.DOCKERHUB_USERNAME }} --password ${{ secrets.DOCKERHUB_PASSWORD }}
           docker build -t ${{ steps.set-env.outputs.REGISTRY_NAME }}/${{ steps.set-env.outputs.REPO_NAME }}:${{ steps.set-env.outputs.COMMIT_HASH }} .
           
+      - name: Trivy Container Scan (JSON)
+        shell: bash
+        run: |-
+          IMAGE=${{ steps.set-env.outputs.REGISTRY_NAME }}/${{ steps.set-env.outputs.REPO_NAME }}:${{ steps.set-env.outputs.COMMIT_HASH }}
+          
+          # Install Trivy (if not using action)
+          sudo yum install -y wget
+          wget https://github.com/aquasecurity/trivy/releases/latest/download/trivy_0.50.1_Linux-64bit.rpm
+          sudo rpm -ivh trivy_0.50.1_Linux-64bit.rpm
+
+          # Run scan and generate JSON report
+          trivy image \
+            --format json \
+            --output trivy-report.json \
+            --severity HIGH,CRITICAL \
+            --no-progress \
+            $IMAGE
+
+      - name: Upload Trivy Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: trivy-report
+          path: trivy-report.json          
           
       - name: Container Scan
         shell: bash
