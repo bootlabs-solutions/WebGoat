@@ -39,17 +39,17 @@ jobs:
       #     sudo yum update -y
       #     sudo yum install python3 -y
       #     python3 -m pip install semgrep
-          # guardian scan --scanType sast --serviceName ${{ steps.set-env.outputs.SERVICE_NAME }}
-      - name: Set up JDK
-        uses: actions/setup-java@v3
-        with:
-          distribution: 'temurin'
-          java-version: '17'
+      #     # guardian scan --scanType sast --serviceName ${{ steps.set-env.outputs.SERVICE_NAME }}
+      # - name: Set up JDK
+      #   uses: actions/setup-java@v3
+      #   with:
+      #     distribution: 'temurin'
+      #     java-version: '17'
 
-      - name: Maven Build (Package)
-        shell: bash
-        run: |-
-          mvn clean package -DskipTests          
+      # - name: Maven Build (Package)
+      #   shell: bash
+      #   run: |-
+      #     mvn clean package -DskipTests          
 
       - name: Docker Build Stage
         shell: bash
