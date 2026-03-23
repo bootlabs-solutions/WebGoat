@@ -30,16 +30,26 @@ jobs:
           echo "GUARDIAN_OS=${{secrets.GUARDIAN_OS}}"
           echo "COMMIT_HASH=$(git rev-parse HEAD | cut -c 1-9)" >> $GITHUB_OUTPUT
 
-      - name: SAST Scan
+      # - name: SAST Scan
+      #   shell: bash
+      #   run: |-
+      #     echo "Branch Name: ${{ steps.set-env.outputs.BRANCH }}"
+      #     echo "Commit Id: ${{ steps.set-env.outputs.COMMIT_ID }}"
+      #     echo "Service Name: ${{ steps.set-env.outputs.SERVICE_NAME }}"
+      #     sudo yum update -y
+      #     sudo yum install python3 -y
+      #     python3 -m pip install semgrep
+          # guardian scan --scanType sast --serviceName ${{ steps.set-env.outputs.SERVICE_NAME }}
+      - name: Set up JDK
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Maven Build (Package)
         shell: bash
         run: |-
-          echo "Branch Name: ${{ steps.set-env.outputs.BRANCH }}"
-          echo "Commit Id: ${{ steps.set-env.outputs.COMMIT_ID }}"
-          echo "Service Name: ${{ steps.set-env.outputs.SERVICE_NAME }}"
-          sudo yum update -y
-          sudo yum install python3 -y
-          python3 -m pip install semgrep
-          # guardian scan --scanType sast --serviceName ${{ steps.set-env.outputs.SERVICE_NAME }}
+          mvn clean package -DskipTests          
 
       - name: Docker Build Stage
         shell: bash
